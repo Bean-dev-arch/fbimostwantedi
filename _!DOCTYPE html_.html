@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Update Notifier</title>
+</head>
+<body>
+    <h1>Surveillance des mises à jour de page web</h1>
+    <p>Ce script surveille une page spécifique pour des changements et envoie une notification à Discord via un webhook.</p>
+
+    <script>
+        // URL de la page à surveiller
+        const pageToMonitor = 'https://sites.google.com/d/1WW9V1Ib8CXyxnKlIHvpm8KdEUuSFqLDm/p/1YkLQxxKrxDtBmbUJSJM06z4u04PjvJnB/edit';
+        // URL de ton webhook Discord
+        const discordWebhookUrl = 'https://discord.com/api/webhooks/1298339038754770944/JtbcAOtMgcNQFy4bQYxv-lK1EkpkGNh1oE7Ft0fBNmbU4q9seWoQ2zANug56cJ1V18Og';
+
+        // Fonction pour vérifier la page
+        async function checkForUpdates() {
+            try {
+                const response = await fetch(pageToMonitor);
+                const text = await response.text();
+
+                // Logique pour détecter les modifications (par exemple, par des mots-clés)
+                const keyword = "nouveauté"; // Mot clé à rechercher dans la page
+                if (text.includes(keyword)) {
+                    sendToDiscord(`Nouvelle mise à jour détectée sur la page : ${pageToMonitor}`);
+                } else {
+                    console.log("Aucune mise à jour détectée.");
+                }
+
+                // Ajouter un log pour vérifier que le script fonctionne
+                console.log("Vérification effectuée à " + new Date().toLocaleTimeString());
+
+            } catch (error) {
+                console.error('Erreur lors de la surveillance de la page:', error);
+            }
+        }
+
+        // Fonction pour envoyer une notification à Discord
+        function sendToDiscord(message) {
+            const payload = {
+                content: message
+            };
+
+            fetch(discordWebhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Notification envoyée à Discord avec succès.');
+                } else {
+                    console.error('Erreur lors de l\'envoi à Discord:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la requête Discord:', error);
+            });
+        }
+
+        // Surveiller la page toutes les 10 minutes (600000 ms)
+        setInterval(checkForUpdates, 600000);
+    </script>
+</body>
+</html>
